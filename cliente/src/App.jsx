@@ -8,7 +8,6 @@ import Asistencia from "./pages/Empleados/Asistencia"
 import Nominas from "./pages/Nominas/Nominas"
 import Configuracion from "./pages/Configuracion"
 import ImprimirNomina from "./pages/Nominas/ImprimirNomina"
-
 const App = () => {
   return (
     <>
