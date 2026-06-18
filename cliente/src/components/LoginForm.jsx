@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Mail, 
-  Lock, 
-  Eye, 
-  EyeOff, 
-  Loader2, 
+import {
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  Loader2,
   LogIn
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
@@ -30,8 +30,11 @@ const LoginForm = () => {
     setTimeout(() => {
       setIsLoading(false);
       const is_admin = email.toLowerCase().includes('admin');
-      const role_display = is_admin ? 'Administrador' : 'Colaborador';
-      
+      const role_display = is_admin ? 'Administrador' : 'Empleado';
+
+      // Guardar el rol en localStorage para la barra lateral
+      localStorage.setItem('role', role_display);
+
       toast.success(`¡Sesión iniciada como ${role_display}!`);
       navigate('/inicio');
     }, 1500);
@@ -56,9 +59,6 @@ const LoginForm = () => {
       {/* Form Container */}
       <div className="max-w-md w-full mx-auto my-auto relative z-10">
         <div className="mb-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100/80 text-xs font-semibold text-blue-700 mb-3">
-            <span>Acceso Seguro</span>
-          </div>
           <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight sm:text-4xl">
             Bienvenido
           </h2>

@@ -122,15 +122,6 @@ const LoginLeftSide = () => {
                     ))}
                 </div>
             </div>
-
-            {/* Footer */}
-            <div className="relative z-10 flex items-center justify-between text-xs text-blue-950/40 pt-6 border-t border-blue-100/30">
-                <p>© {new Date().getFullYear()} TalentFlow Inc.</p>
-                <div className="flex gap-4">
-                    <a href="#" className="hover:text-blue-950/80 transition-colors">Soporte</a>
-                    <a href="#" className="hover:text-blue-950/80 transition-colors">Seguridad</a>
-                </div>
-            </div>
         </div>
     );
 };
