@@ -8,7 +8,7 @@ import {
   Loader2,
   LogIn
 } from 'lucide-react';
-import { toast } from 'react-hot-toast';
+import Swal from 'sweetalert2';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
@@ -20,7 +20,16 @@ const LoginForm = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!email || !password) {
-      toast.error('Por favor completa todos los campos.');
+      Swal.fire({
+        icon: 'error',
+        title: 'Campos incompletos',
+        text: 'Por favor completa todos los campos.',
+        confirmButtonColor: '#2563eb',
+        customClass: {
+          popup: 'rounded-2xl',
+          confirmButton: 'rounded-xl px-5 py-2.5 text-sm font-semibold'
+        }
+      });
       return;
     }
 
@@ -35,7 +44,17 @@ const LoginForm = () => {
       // Guardar el rol en localStorage para la barra lateral
       localStorage.setItem('role', role_display);
 
-      toast.success(`¡Sesión iniciada como ${role_display}!`);
+      Swal.fire({
+        icon: 'success',
+        title: '¡Sesión iniciada!',
+        text: `Bienvenido como ${role_display}`,
+        timer: 1800,
+        showConfirmButton: false,
+        timerProgressBar: true,
+        customClass: {
+          popup: 'rounded-2xl'
+        }
+      });
       navigate('/inicio');
     }, 1500);
   };

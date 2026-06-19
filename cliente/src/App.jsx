@@ -1,4 +1,3 @@
-import { Toaster } from "react-hot-toast"
 import { Navigate, Route, Routes } from "react-router-dom"
 import Login from "./pages/Login/LoginLanding"
 import Layout from "./pages/Layout"
@@ -11,7 +10,6 @@ import ImprimirNomina from "./pages/Nominas/ImprimirNomina"
 const App = () => {
   return (
     <>
-      <Toaster position="top-right" />
       <div className="min-h-screen bg-slate-100">
         <Routes>
           <Route path="/login" element={<Login />} />
