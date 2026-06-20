@@ -61,7 +61,7 @@ const EmpleadoDashboard = ({ data }) => {
           </div>
           <div className="mt-4">
             <h3 className="text-2xl font-black text-slate-800 tracking-tight">
-              ${data.latestPayslip.netSalary.toLocaleString('es-ES')}
+              S/ {data.latestPayslip.netSalary.toLocaleString('es-PE')}
             </h3>
             <p className="text-xs font-semibold text-slate-400 mt-1 uppercase tracking-wider">Última Nómina Recibida</p>
           </div>
