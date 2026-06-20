@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Mail,
+  User,
   Lock,
   Eye,
   EyeOff,
@@ -11,7 +11,7 @@ import {
 import Swal from 'sweetalert2';
 
 const LoginForm = () => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -19,7 +19,7 @@ const LoginForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!email || !password) {
+    if (!username || !password) {
       Swal.fire({
         icon: 'error',
         title: 'Campos incompletos',
@@ -38,7 +38,7 @@ const LoginForm = () => {
     // Simulación de inicio de sesión con resolución de rol
     setTimeout(() => {
       setIsLoading(false);
-      const is_admin = email.toLowerCase().includes('admin');
+      const is_admin = username.toLowerCase().includes('admin');
       const role_display = is_admin ? 'Administrador' : 'Empleado';
 
       // Guardar el rol en localStorage para la barra lateral
@@ -89,20 +89,20 @@ const LoginForm = () => {
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Email Input */}
           <div className="space-y-1.5">
-            <label htmlFor="email" className="text-xs font-bold uppercase text-slate-500 tracking-wider">
-              Correo Electrónico
+            <label htmlFor="usuario" className="text-xs font-bold uppercase text-slate-500 tracking-wider">
+              Usuario
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                <Mail className="w-4.5 h-4.5" />
+                <User className="w-4.5 h-4.5" />
               </div>
               <input
-                id="email"
-                type="email"
+                id="usuario"
+                type="text"
                 required
-                placeholder="ejemplo@talentflow.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Usuario01"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 disabled={isLoading}
                 className="w-full pl-11 pr-4 py-3 bg-slate-50/60 border border-slate-200/80 rounded-xl text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all duration-200"
               />

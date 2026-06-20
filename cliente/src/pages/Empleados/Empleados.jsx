@@ -10,15 +10,21 @@ import {
     ChevronsLeft,
     ChevronsRight,
     Filter,
+    Eye,
+    Pencil,
+    Trash2,
     UserPlus
 } from 'lucide-react';
 import { dummyEmployeeData, DEPARTMENTS } from '../../assets/assets';
 import { showLoading, hideLoading } from '../../components/Loading';
 import CreateEmpleados from '../../components/Empleados/createEmpleados';
+import EditEmpleados from '../../components/Empleados/EditEmpleados';
 import Swal from 'sweetalert2';
 
 const Empleados = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [selectedEmployee, setSelectedEmployee] = useState(null);
     const [employees, setEmployees] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -26,7 +32,7 @@ const Empleados = () => {
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
+    const [pageSize, setPageSize] = useState(6);
 
     const handleSaveEmployee = (newEmp) => {
         setEmployees((prev) => [newEmp, ...prev]);
@@ -41,6 +47,26 @@ const Empleados = () => {
                 popup: 'rounded-2xl shadow-xl'
             }
         });
+    };
+
+    const handleUpdateEmployee = (updatedEmp) => {
+        setEmployees((prev) => prev.map((emp) => emp._id === updatedEmp._id ? updatedEmp : emp));
+        Swal.fire({
+            icon: 'success',
+            title: '¡Empleado actualizado!',
+            text: `${updatedEmp.firstName || ''} ${updatedEmp.lastName} ha sido actualizado de forma exitosa.`,
+            timer: 2200,
+            showConfirmButton: false,
+            timerProgressBar: true,
+            customClass: {
+                popup: 'rounded-2xl shadow-xl'
+            }
+        });
+    };
+
+    const handleEditClick = (emp) => {
+        setSelectedEmployee(emp);
+        setIsEditModalOpen(true);
     };
 
     useEffect(() => {
@@ -233,12 +259,17 @@ const Empleados = () => {
                                         {emp.basicSalary.toLocaleString('es-PE')}
                                     </p>
                                 </div>
-                                <button
-                                    onClick={() => alert(`Detalles de ${emp.firstName}`)}
-                                    className="px-3.5 py-1.5 rounded-lg bg-slate-50 hover:bg-blue-50 text-slate-600 hover:text-blue-600 border border-slate-200/50 hover:border-blue-100 font-bold text-xs transition-colors cursor-pointer"
-                                >
-                                    Ver Perfil
-                                </button>
+                                <div className='flex items-center gap-1.5'>
+                                    <button className='p-2 bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-blue-600 rounded-lg border border-slate-200/60 transition-colors cursor-pointer' title='Ver detalles'>
+                                        <Eye size={16} />
+                                    </button>
+                                    <button onClick={() => handleEditClick(emp)} className='p-2 bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-amber-600 rounded-lg border border-slate-200/60 transition-colors cursor-pointer' title='Editar'>
+                                        <Pencil size={16} />
+                                    </button>
+                                    <button className='p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg border border-red-100/80 transition-colors cursor-pointer' title='Eliminar'>
+                                        <Trash2 size={16} />
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     ))}
@@ -342,6 +373,17 @@ const Empleados = () => {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSave={handleSaveEmployee}
+            />
+
+            {/* Modal para Editar Empleado */}
+            <EditEmpleados
+                isOpen={isEditModalOpen}
+                onClose={() => {
+                    setIsEditModalOpen(false);
+                    setSelectedEmployee(null);
+                }}
+                onSave={handleUpdateEmployee}
+                employee={selectedEmployee}
             />
         </div>
     );

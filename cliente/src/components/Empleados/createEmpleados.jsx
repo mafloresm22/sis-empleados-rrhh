@@ -392,7 +392,7 @@ const CreateEmpleados = ({ isOpen, onClose, onSave }) => {
                     <button
                         type="button"
                         onClick={onClose}
-                        className="px-5 py-2.5 rounded-xl bg-red-500 text-amber-50 border border-red-100 hover:bg-red-100 hover:text-red-700 font-bold text-sm transition-all duration-200 cursor-pointer"
+                        className="px-5 py-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold text-sm transition-all duration-200 cursor-pointer"
                     >
                         Cancelar
                     </button>
