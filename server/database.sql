@@ -1,12 +1,9 @@
 -- =============================================================
 -- SCRIPT DE BASE DE DATOS: Sistema de Gestión de Empleados RRHH
--- Motor: PostgreSQL
+-- BASE DE DATOS: PostgreSQL
 -- =============================================================
 
--- =============================================================
 -- TABLA: empleados
--- =============================================================
-
 CREATE TABLE IF NOT EXISTS empleados (
     idEmpleados               SERIAL PRIMARY KEY,
     nombresEmpleados          VARCHAR(100),
@@ -15,26 +12,25 @@ CREATE TABLE IF NOT EXISTS empleados (
     correoPersonalEmpleados   VARCHAR(150)    NOT NULL UNIQUE,
     numeroCelularEmpleados    VARCHAR(20)     NOT NULL,
     fechaContratacionEmpleados DATE           NOT NULL,
-    departamentoEmpleados     VARCHAR(100)    NOT NULL,
     puestoEmpleados           VARCHAR(100)    NOT NULL,
     salarioBasicoEmpleados    NUMERIC(12,2)  NOT NULL DEFAULT 0,
     asignacionesEmpleados     NUMERIC(12,2)  NOT NULL DEFAULT 0,
     deduccionesEmpleados      NUMERIC(12,2)  NOT NULL DEFAULT 0,
     estadoEmpleados           VARCHAR(20)    NOT NULL DEFAULT 'ACTIVO'
         CHECK (estadoEmpleados IN ('ACTIVO','INACTIVO')),
-    correoEmpleados           VARCHAR(150)    NOT NULL UNIQUE,
+    correoEmpresarialEmpleados VARCHAR(150)    NOT NULL UNIQUE,
     passwordEmpleados         VARCHAR(255)    NOT NULL,
-    rolEmpleados              VARCHAR(20)    NOT NULL DEFAULT 'EMPLEADO'
-        CHECK (rolEmpleados IN ('EMPLEADO','ADMIN','RRHH')),
+    rol_id                INTEGER NOT NULL REFERENCES roles(idRol) ON DELETE CASCADE,
+    departamento_id           INTEGER NOT NULL REFERENCES departamentos(idDepartamento) ON DELETE CASCADE,
     fechaCreacion             TIMESTAMP      NOT NULL DEFAULT NOW(),
     fechaActualizacion        TIMESTAMP      NOT NULL DEFAULT NOW()
 );
 
--- =============================================================
--- TABLA: roles (lookup)
--- =============================================================
+
+-- TABLA: roles
 CREATE TABLE IF NOT EXISTS roles (
-    nombre_rol VARCHAR(20) PRIMARY KEY,
+    idRol           SERIAL PRIMARY KEY,
+    nombre_rol VARCHAR(20) NOT NULL UNIQUE,
     descripcion TEXT
 );
 
@@ -44,23 +40,26 @@ INSERT INTO roles (nombre_rol, descripcion) VALUES
     ('RRHH','Gestión de personal y nóminas')
 ON CONFLICT DO NOTHING;
 
--- =============================================================
--- TABLA: usuarios (login)
--- =============================================================
+CREATE TABLE IF NOT EXISTS departamentos (
+    idDepartamento   SERIAL PRIMARY KEY,
+    nombreDepartamento VARCHAR(100) NOT NULL,
+    fechaCreacion      TIMESTAMP NOT NULL DEFAULT NOW(),
+    fechaActualizacion TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+-- TABLA: usuarios
 CREATE TABLE IF NOT EXISTS usuarios (
     idUsuario          SERIAL PRIMARY KEY,
     empleado_id        INTEGER NOT NULL REFERENCES empleados(idEmpleados) ON DELETE CASCADE,
     username           VARCHAR(100) NOT NULL UNIQUE,
     password_hash      VARCHAR(255) NOT NULL,
-    rol                VARCHAR(20) NOT NULL REFERENCES roles(nombre_rol),
+    rol_id             INTEGER NOT NULL REFERENCES roles(idRol),
     ultimo_login       TIMESTAMP,
     fechaCreacion      TIMESTAMP NOT NULL DEFAULT NOW(),
     fechaActualizacion TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
--- =============================================================
--- TABLA: turnos (horarios de trabajo)
--- =============================================================
+-- TABLA: turnos
 CREATE TABLE IF NOT EXISTS turnos (
     idTurno          SERIAL PRIMARY KEY,
     nombre_turno      VARCHAR(50) NOT NULL,
@@ -71,9 +70,7 @@ CREATE TABLE IF NOT EXISTS turnos (
     fechaActualizacion TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
--- =============================================================
 -- TABLA: asistencias
--- =============================================================
 CREATE TABLE IF NOT EXISTS asistencias (
     idAsistencia       SERIAL PRIMARY KEY,
     empleado_id        INTEGER NOT NULL REFERENCES empleados(idEmpleados) ON DELETE CASCADE,
@@ -86,9 +83,7 @@ CREATE TABLE IF NOT EXISTS asistencias (
     fechaActualizacion TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
--- =============================================================
 -- TABLA: nominas
--- =============================================================
 CREATE TABLE IF NOT EXISTS nominas (
     idNomina          SERIAL PRIMARY KEY,
     empleado_id       INTEGER NOT NULL REFERENCES empleados(idEmpleados) ON DELETE CASCADE,
@@ -101,12 +96,11 @@ CREATE TABLE IF NOT EXISTS nominas (
     estado            VARCHAR(20) NOT NULL DEFAULT 'PENDIENTE'
         CHECK (estado IN ('PENDIENTE','PAGADO','RECHAZADO')),
     fechaCreacion      TIMESTAMP NOT NULL DEFAULT NOW(),
-    fechaActualizacion TIMESTAMP NOT NULL DEFAULT NOW()
+    fechaActualizacion TIMESTAMP NOT NULL DEFAULT NOW(),
+    CONSTRAINT uq_nomina_emp_mes UNIQUE (empleado_id, mes)
 );
 
--- =============================================================
--- TABLA: configuracion – datos de la empresa
--- =============================================================
+-- TABLA: configuracion
 CREATE TABLE IF NOT EXISTS configuracion (
     id_config            SERIAL PRIMARY KEY,
     nombre_empresa       VARCHAR(150) NOT NULL,
@@ -118,6 +112,17 @@ CREATE TABLE IF NOT EXISTS configuracion (
     fechaCreacion        TIMESTAMP NOT NULL DEFAULT NOW(),
     fechaActualizacion   TIMESTAMP NOT NULL DEFAULT NOW()
 );
+
+
+
+
+
+
+
+
+
+
+
 -- Asegurar única fila de configuración
 CREATE UNIQUE INDEX IF NOT EXISTS uq_config_unica ON configuracion (id_config);
 
@@ -167,22 +172,22 @@ ON CONFLICT DO NOTHING;
 
 INSERT INTO empleados (
     nombresEmpleados, apellidosEmpleados, fechaNacimientoEmpleados, correoPersonalEmpleados,
-    numeroCelularEmpleados, fechaContratacionEmpleados, departamentoEmpleados, puestoEmpleados,
+    numeroCelularEmpleados, fechaContratacionEmpleados, departamento_id, puestoEmpleados,
     salarioBasicoEmpleados, asignacionesEmpleados, deduccionesEmpleados, estadoEmpleados,
-    correoEmpleados, passwordEmpleados, rolEmpleados
+    correoEmpresarialEmpleados, passwordEmpleados, rol_id
 ) VALUES (
     'Admin', 'Sistema', '1990-01-01', 'admin.personal@email.com',
-    '999000001', '2024-01-01', 'Tecnología', 'Administrador del Sistema',
+    '999000001', '2024-01-01', (SELECT idDepartamento FROM departamentos WHERE nombreDepartamento = 'Tecnología'), 'Administrador del Sistema',
     5000.00, 500.00, 100.00, 'ACTIVO',
     'admin@talentflow.com',
     -- password: Admin1234 hashed with bcrypt cost=10
     '$2a$10$Ku9v.0VmxXHJy2kBIEqJT.eF1EiVx.E/VT5m3oB9Sn6B9OhQfKkBK',
-    'ADMIN'
-) ON CONFLICT (correoEmpleados) DO NOTHING;
+    (SELECT idRol FROM roles WHERE nombre_rol = 'ADMIN')
+) ON CONFLICT (correoEmpresarialEmpleados) DO NOTHING;
 
-INSERT INTO usuarios (empleado_id, username, password_hash, rol)
-SELECT idEmpleados, 'admin', '$2a$10$Ku9v.0VmxXHJy2kBIEqJT.eF1EiVx.E/VT5m3oB9Sn6B9OhQfKkBK', 'ADMIN'
-FROM empleados WHERE correoEmpleados = 'admin@talentflow.com'
+INSERT INTO usuarios (empleado_id, username, password_hash, rol_id)
+SELECT idEmpleados, 'admin', '$2a$10$Ku9v.0VmxXHJy2kBIEqJT.eF1EiVx.E/VT5m3oB9Sn6B9OhQfKkBK', (SELECT idRol FROM roles WHERE nombre_rol = 'ADMIN')
+FROM empleados WHERE correoEmpresarialEmpleados = 'admin@talentflow.com'
 ON CONFLICT (username) DO NOTHING;
 
 -- Fin del script
